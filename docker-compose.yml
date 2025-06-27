@@ -1,0 +1,82 @@
+volumes:
+  postgres_data: {}
+  clickhouse_data: {}
+  rabbitmq_data: {}
+  redis_data: {}
+
+networks:
+  app_net:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgis/postgis:17-3.5-alpine
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_net
+    environment:
+      POSTGRES_USER: ${USER}
+      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_DB: ${DBNAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER} -d ${DBNAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.6.1.3206-alpine
+    restart: always
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse/
+    networks:
+      - app_net
+    environment:
+      CLICKHOUSE_USER: ${USER}
+      CLICKHOUSE_PASSWORD: ${PASSWORD}
+      CLICKHOUSE_DB: ${DBNAME}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8123/ping || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  rabbitmq:
+    image: rabbitmq:4.1.1-alpine
+    restart: always
+    volumes:
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbitmq_data:/var/lib/rabbitmq/
+    networks:
+      - app_net
+    environment:
+      RABBITMQ_DEFAULT_USER: ${USER}
+      RABBITMQ_DEFAULT_PASS: ${PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running", "-q"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  redis:
+    image: redis:8.0.2-alpine3.21
+    restart: always
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+      start_period: 10s

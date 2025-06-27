@@ -1,0 +1,14 @@
+{
+    "policies": [
+        {
+            "vhost": "/",
+            "name": "max_length_policy",
+            "pattern": ".*",
+            "apply-to": "queues",
+            "definition": {
+                "max-length": 10000
+            },
+            "priority": 0
+        }
+    ]
+}
