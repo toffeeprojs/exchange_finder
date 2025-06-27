@@ -1,0 +1,12 @@
+[submodule "celery"]
+	path = celery
+	url = git@github.com:toffeeprojs/ef_celery.git
+[submodule "fastapi"]
+	path = fastapi
+	url = git@github.com:toffeeprojs/ef_fastapi.git
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:toffeeprojs/ef_frontend.git
+[submodule "aiogram"]
+	path = aiogram
+	url = git@github.com:toffeeprojs/ef_aiogram.git
