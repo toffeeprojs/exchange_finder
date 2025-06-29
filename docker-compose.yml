@@ -14,9 +14,12 @@ services:
     restart: always
     shm_size: 128mb
     volumes:
+      - ./postgres/project_settings.sql:/docker-entrypoint-initdb.d/project_settings.sql:ro
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app_net
+    ports:
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_USER: ${USER}
       POSTGRES_PASSWORD: ${PASSWORD}
@@ -32,15 +35,20 @@ services:
     image: clickhouse/clickhouse-server:25.6.1.3206-alpine
     restart: always
     volumes:
+      - ./clickhouse/project_settings.sql:/docker-entrypoint-initdb.d/project_settings.sql:ro
       - clickhouse_data:/var/lib/clickhouse/
     networks:
       - app_net
+    ports:
+      - "127.0.0.1:8123:8123"
+      - "127.0.0.1:8000:9000"
     environment:
       CLICKHOUSE_USER: ${USER}
       CLICKHOUSE_PASSWORD: ${PASSWORD}
       CLICKHOUSE_DB: ${DBNAME}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8123/ping || exit 1"]
+      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1' || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 3
@@ -51,13 +59,16 @@ services:
         hard: 262144
 
   rabbitmq:
-    image: rabbitmq:4.1.1-alpine
+    image: rabbitmq:4.1.1-management-alpine
     restart: always
     volumes:
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
       - rabbitmq_data:/var/lib/rabbitmq/
     networks:
       - app_net
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${USER}
       RABBITMQ_DEFAULT_PASS: ${PASSWORD}
@@ -74,6 +85,10 @@ services:
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - app_net
+    ports:
+      - "127.0.0.1:6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s
