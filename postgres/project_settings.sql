@@ -18,7 +18,7 @@ CREATE TABLE exchanges (
     rate NUMERIC(20, 6),
     comment VARCHAR(400),
 
-    PRIMARY KEY (user_telegram_id, currency_give, currency_get),
+    PRIMARY KEY (user_telegram_id, currency_give, currency_get)
 );
 
 CREATE INDEX exchanges_currency_pair_idx ON exchanges (currency_give, currency_get);
