@@ -34,6 +34,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      clickhouse:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     networks: [ app_net ]
