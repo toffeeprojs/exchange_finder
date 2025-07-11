@@ -2,9 +2,9 @@
     "policies": [
         {
             "vhost": "/",
-            "name": "max_length_policy",
             "pattern": ".*",
             "apply-to": "queues",
+            "name": "max_length_policy",
             "definition": {
                 "max-length": 10000
             },
