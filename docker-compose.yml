@@ -102,7 +102,7 @@ services:
       CLICKHOUSE_USER: ${CLICKHOUSE_USER}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
       CLICKHOUSE_DB: ${CLICKHOUSE_DB}
-    command: celery -A main worker --loglevel=info
+    command: uv run celery -A src.main worker --loglevel=info
 
   celery_beat:
     build: ./celery
@@ -116,7 +116,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
-    command: celery -A main beat --loglevel=info
+    command: uv run celery -A src.main beat --loglevel=info
 
   postgres:
     image: postgis/postgis:17-3.5-alpine
